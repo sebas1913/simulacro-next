@@ -1,0 +1,13 @@
+.StyledNav{
+    background-color: var(--primary-color);
+    position: sticky;
+    top: 0;
+    display: flex;
+    color: var(--tertiary-color);
+    align-items: center;
+    justify-content: space-around;
+
+    .StyledContainerButton{
+        text-align: center;
+    }
+}

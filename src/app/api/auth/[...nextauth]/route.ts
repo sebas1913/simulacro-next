@@ -1,16 +1,28 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
+declare module "next-auth" {
+    interface Session {
+        user: {
+            id: string; 
+            name?: string | null;
+            email?: string | null;
+            token?: any; 
+        };
+        accessToken?: any; // Se añade el token a la sesión
+    }
+}
+
 const handler = NextAuth({
     providers: [
         CredentialsProvider({
             name: "Credentials",
             credentials: {
-                email: { label: "Email", type: "email"},
+                email: { label: "Email", type: "email" },
                 password: { label: "Password", type: "password" }
             },
             async authorize(credentials) {
-                const response: Response = await fetch(`https://simuate-test-backend-1.onrender.com/api/auth/login`, {
+                const response = await fetch(`https://simuate-test-backend-1.onrender.com/api/auth/login`, {
                     method: 'POST',
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -18,46 +30,44 @@ const handler = NextAuth({
                         password: credentials?.password
                     })
                 });
-
-                const user = await response.json();
-
-                // Si el inicio de sesión es exitoso, devuelve el usuario
-                if (response.ok && user) {
-                    return user;
+            
+                const data = await response.json();
+            
+                if (response.ok && data.user) {
+                    return {
+                        ...data.user,
+                        token: data.token // Guardamos el token del back
+                    };
                 }
-
-                // Si el inicio de sesión falla, retorna null
+            
                 return null;
             }
         })
     ],
-    // Esta es la página de inicio de sesión, como yo tengo un Modal, no la pongo
-    // pages: {
-    //     signIn: '/auth/signin', 
-    // },
+    debug: true,  
     session: {
         strategy: "jwt", 
     },
     callbacks: {
         async jwt({ token, user }) {
-            // Añadir datos al token JWT
             if (user) {
+                token.id = user.id; 
                 token.name = user.name;
                 token.email = user.email;
             }
-            return token;
+            return token; // Retorna el token modificado
         },
+        
         async session({ session, token }) {
-            // Añadir datos a la sesión
-            if (session.user) {
+            if (token) {
+                session.user.id = token.id as string;
                 session.user.name = token.name as string;
                 session.user.email = token.email as string;
+                session.accessToken = token.accessToken; // Añadir el token a la sesión
             }
-            return session;
+            return session; // Retorna la sesión modificada
         }
-    },
-    secret: 'abcd.1234', 
-    debug: true,    
+    },  
 });
 
 export { handler as GET, handler as POST };
