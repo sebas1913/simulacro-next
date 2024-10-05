@@ -43,7 +43,7 @@ const StyledButtonLang = styled(Button)`
 `
 
 const StyledContainerUpdate = styled.div`
-    text-align: center
+    text-align: center;
 `
 
 const PostsPage: React.FC = () => {
