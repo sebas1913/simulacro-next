@@ -1,0 +1,12 @@
+{
+    "greeting": "Hola",
+    "createPost": "Crear publicación",
+    "completeFields": "Por favor, completa todos los campos.",
+    "postCreated": "¡Publicación creada exitosamente!",
+    "errorCreatingPost": "Error al crear la publicación",
+    "titlePlaceholder": "Título",
+    "descriptionPlaceholder": "Descripción",
+    "create": "Crear",
+    "updatePost": "Actualizar publicación",
+    "update": "Actualizar"
+}

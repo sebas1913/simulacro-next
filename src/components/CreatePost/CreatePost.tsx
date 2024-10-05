@@ -1,13 +1,12 @@
 "use client";
-import React, { useState } from "react";
-import { useSession } from "next-auth/react"; 
+import React, { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
 import Modal from "../Modal/Modal";
 import Form from "../Form/Form";
 import Input from "../UI/Input/Input";
 import Button from "../UI/Button/Button";
 import styled from "styled-components";
 
-// Estilos
 const StyledButtonContainer = styled.div`
     text-align: center;
 `;
@@ -20,23 +19,21 @@ const StyledButton = styled(Button)`
     background: var(--primary-color);
 `;
 
-// Interfaz para las props
 interface CreatePostProps {
     onPostCreated: () => void;
+    texts: any; // Agregamos texts como prop
 }
 
-const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated }) => {
-    const { data: session } = useSession(); // Traeamos la sesión
+const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated, texts }) => {
+    const { data: session } = useSession();
     const [modalVisible, setModalVisible] = useState(false);
     const [postTitle, setPostTitle] = useState("");
     const [postDescription, setPostDescription] = useState("");
 
-    // Función para mostrar/ocultar modal
     const toggleModal = () => {
         setModalVisible(!modalVisible);
     };
 
-    // Manejar los cambios en los inputs
     const handleChangeTitle = (event: React.ChangeEvent<HTMLInputElement>) => {
         setPostTitle(event.target.value);
     };
@@ -45,16 +42,15 @@ const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated }) => {
         setPostDescription(event.target.value);
     };
 
-    // Envío del formulario para crear la publicación
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         if (!postTitle || !postDescription) {
-            alert("Por favor, completa todos los campos");
+            alert(texts.completeFields); // Usamos el texto traducido
             return;
         }
 
-        const response: Response = await fetch("/api/posts", { 
+        const response: Response = await fetch("/api/posts", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -69,45 +65,44 @@ const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated }) => {
         const result = await response.json();
 
         if (response.ok) {
-            alert("Publicación creada exitosamente :)");
+            alert(texts.postCreated); // Usamos el texto traducido
             setPostTitle("");
             setPostDescription("");
             toggleModal();
-
-            // Llama a la función onPostCreated para recargar los posts
             onPostCreated();
         } else {
             console.log("Error al crear la publicación:", result.message);
-            alert(`Error al crear la publicación: ${result.message}`);
+            alert(`${texts.errorCreatingPost}: ${result.message}`); // Usamos el texto traducido
         }
     };
 
     return (
         <>
             <StyledButtonContainer>
-                <StyledButton type="button" onClick={toggleModal}>Crear Publicación</StyledButton>
+                <StyledButton type="button" onClick={toggleModal}>
+                    {texts.createPost} {/* Texto traducido */}
+                </StyledButton>
             </StyledButtonContainer>
 
-            {/* Modal para crear publicación */}
             <Modal isVisible={modalVisible} onClose={toggleModal}>
                 <Form onSubmit={handleSubmit}>
-                    <h1>Crear Publicación</h1>
+                    <h1>{texts.createPost}</h1> 
                     <Input
                         type="text"
                         name="title"
                         value={postTitle}
                         onChange={handleChangeTitle}
-                        placeholder="Título"
+                        placeholder={texts.titlePlaceholder} 
                     />
                     <Input
                         type="text"
                         name="description"
                         value={postDescription}
                         onChange={handleChangeDescription}
-                        placeholder="Descripción"
+                        placeholder={texts.descriptionPlaceholder} 
                     />
                     <StyledButtonContainer>
-                        <StyledButton type="submit">Crear</StyledButton>
+                        <StyledButton type="submit">{texts.create}</StyledButton>
                     </StyledButtonContainer>
                 </Form>
             </Modal>

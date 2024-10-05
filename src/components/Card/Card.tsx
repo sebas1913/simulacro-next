@@ -1,5 +1,7 @@
 import React from "react";
 import styled from "styled-components";
+import { FiEdit } from "react-icons/fi";
+import { MdDeleteOutline } from "react-icons/md";
 import { Post } from "@/interfaces/ICard";
 import Button from "../UI/Button/Button";
 
@@ -70,10 +72,14 @@ const Card: React.FC<CardProps> = ({ post, onUpdate, onDelete }) => {
 
             <StyledButtonContainer>
                 {/* Botón para actualizar */}
-                <UpdateButton type="button" onClick={() => onUpdate(post)}>Actualizar</UpdateButton>
+                <UpdateButton type="button" onClick={() => onUpdate(post)}>
+                    <FiEdit />
+                </UpdateButton>
 
                 {/* Botón para eliminar */}
-                <DeleteButton type="button" onClick={handleDelete}>Eliminar</DeleteButton>
+                <DeleteButton type="button" onClick={handleDelete}>
+                    <MdDeleteOutline />
+                </DeleteButton>
             </StyledButtonContainer>
         </StyledCard>
     );

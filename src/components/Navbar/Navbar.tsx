@@ -8,6 +8,8 @@ import Button from "../UI/Button/Button";
 import Input from '../UI/Input/Input';
 import Modal from "../Modal/Modal";
 import Form from "../Form/Form";
+import { CiLogout } from "react-icons/ci";
+
 
 const StyledButton = styled(Button)`
     margin: 0.8rem;
@@ -147,7 +149,7 @@ const Navbar: React.FC = () => {
                     <>
                         <h1>POSTS</h1>
                         <StyledButton type="button" onClick={async () => await signOut()}>
-                            Cerrar sesión
+                            < CiLogout size={30}/>
                         </StyledButton>
                     </>
                 ) : (

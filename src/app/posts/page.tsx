@@ -5,12 +5,12 @@ import { useRouter } from "next/navigation";
 import styled from "styled-components";
 import Spinner from "@/components/Spinner/Spinner";
 import Card from "@/components/Card/Card";
-import { Post } from "@/interfaces/ICard"; // Asegúrate de que la interfaz Post esté correctamente definida
 import CreatePost from "@/components/CreatePost/CreatePost";
 import Modal from "@/components/Modal/Modal";
 import Form from "@/components/Form/Form";
 import Button from "@/components/UI/Button/Button";
 import Input from "@/components/UI/Input/Input";
+import Cookies from "js-cookie"; 
 
 const StyledPostsContainer = styled.div``;
 
@@ -28,31 +28,55 @@ const StyledButton = styled(Button)`
     background: var(--primary-color);
 `;
 
-const StyledContainerButton = styled.div`
-    text-align: center;
+const StyledContainerLang = styled.div`
+    position: fixed;
+    bottom: 1rem;
+    left: 1rem;
 `;
 
-const Title = styled.h1`
-    text-align: center;
-`;
+const StyledButtonLang = styled(Button)`
+    margin: 0.2rem;
+    width: 3rem;
+    padding: 0.6rem;
+    color: var(--tertiary-color);
+    background: var(--primary-color);
+`
 
-
+const StyledContainerUpdate = styled.div`
+    text-align: center
+`
 
 const PostsPage: React.FC = () => {
     const { data: session, status } = useSession();
     const router = useRouter();
-    const [posts, setPosts] = useState<Post[]>([]);
+    const [posts, setPosts] = useState<any[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [modalUpdateVisible, setModalUpdateVisible] = useState(false);
-    const [postToUpdate, setPostToUpdate] = useState<Post | null>(null); // Almacenar el post a actualizar
+    const [postToUpdate, setPostToUpdate] = useState<any | null>(null);
+    const [language, setLanguage] = useState<string>('en');
+    const [texts, setTexts] = useState<any>({});
 
     useEffect(() => {
         if (status === "unauthenticated") {
             router.push("/");
         } else if (status === "authenticated") {
             fetchPosts();
+            loadLanguage();
         }
     }, [status, router]);
+
+    const loadLanguage = () => {
+        const lang = Cookies.get('language') || 'es';
+        setLanguage(lang);
+        fetch(`/messages/${lang}.json`)
+            .then(response => response.json())
+            .then(data => setTexts(data));
+    };
+
+    const changeLanguage = (lang: string) => {
+        Cookies.set('language', lang, { expires: 30 });
+        loadLanguage();
+    };
 
     const toggleModalUpdate = () => {
         setModalUpdateVisible(!modalUpdateVisible);
@@ -91,9 +115,9 @@ const PostsPage: React.FC = () => {
         }
     };
 
-    const handleUpdate = (post: Post) => {
-        setPostToUpdate(post); // Guardar el post actual
-        toggleModalUpdate(); // Mostrar el modal de actualización
+    const handleUpdate = (post: any) => {
+        setPostToUpdate(post);
+        toggleModalUpdate();
     };
 
     const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -108,7 +132,7 @@ const PostsPage: React.FC = () => {
         }
     };
 
-    const submitUpdate = async (updatedPost: Post) => {
+    const submitUpdate = async (updatedPost: any) => {
         try {
             const response = await fetch(`/api/posts/${updatedPost.id}`, {
                 method: 'PUT',
@@ -120,7 +144,7 @@ const PostsPage: React.FC = () => {
 
             if (response.ok) {
                 setPosts(posts.map(post => post.id === updatedPost.id ? updatedPost : post));
-                toggleModalUpdate(); // Cerrar el modal
+                toggleModalUpdate();
             } else {
                 console.error("Error actualizando el post:", response.statusText);
             }
@@ -133,53 +157,53 @@ const PostsPage: React.FC = () => {
         return <Spinner />;
     }
 
-    if (status === "authenticated") {
-        return (
-            <>
-                <StyledTitle>Hola, {session?.user?.name}</StyledTitle>
-                <CreatePost onPostCreated={fetchPosts} />
+    return (
+        <>
+            <StyledTitle>{texts.greeting}, {session?.user?.name}</StyledTitle>
+            <CreatePost onPostCreated={fetchPosts} texts={texts} /> {/* Pasamos texts como prop */}
 
-                <StyledPostsContainer>
-                    {posts.map((post) => (
-                        <Card
-                            key={post.id}
-                            post={post}
-                            onDelete={handleDelete}
-                            onUpdate={handleUpdate}
+            <StyledContainerLang>
+                <StyledButtonLang type="button" onClick={() => changeLanguage('es')}>ES</StyledButtonLang>
+                <StyledButtonLang type="button" onClick={() => changeLanguage('en')}>EN</StyledButtonLang>
+            </StyledContainerLang>
+
+            <StyledPostsContainer>
+                {posts.map((post) => (
+                    <Card
+                        key={post.id}
+                        post={post}
+                        onDelete={handleDelete}
+                        onUpdate={handleUpdate}
+                    />
+                ))}
+            </StyledPostsContainer>
+
+            {modalUpdateVisible && postToUpdate && (
+                <Modal isVisible={modalUpdateVisible} onClose={toggleModalUpdate}>
+                    <Form onSubmit={(e) => { e.preventDefault(); submitUpdate(postToUpdate); }}>
+                        <h1>{texts.updatePost}</h1>
+                        <Input
+                            name="title"
+                            type="text"
+                            value={postToUpdate.title}
+                            onChange={handleTitleChange}
+                            placeholder={texts.titlePlaceholder}
                         />
-                    ))}
-                </StyledPostsContainer>
-
-                {modalUpdateVisible && postToUpdate && (
-                    <Modal isVisible={modalUpdateVisible} onClose={toggleModalUpdate}>
-                        <Title>Actualizar post</Title>
-                        <Form onSubmit={(e) => {
-                            e.preventDefault();
-                            submitUpdate(postToUpdate);
-                        }}>
-                            <Input
-                                name="title"
-                                type="text"
-                                value={postToUpdate.title}
-                                onChange={handleTitleChange}
-                            />
-                            <Input
-                                name="description"
-                                type="text"
-                                value={postToUpdate.description}
-                                onChange={handleDescriptionChange}
-                            />
-                            <StyledContainerButton>
-                                <StyledButton type="submit">Actualizar</StyledButton>
-                            </StyledContainerButton>
-                        </Form>
-                    </Modal>
-                )}
-            </>
-        );
-    }
-
-    return null;
+                        <Input
+                            name="title"
+                            type="text"
+                            value={postToUpdate.description}
+                            onChange={handleDescriptionChange}
+                            placeholder={texts.descriptionPlaceholder}
+                        />
+                        <StyledContainerUpdate>
+                            <StyledButton type="submit">{texts.update}</StyledButton>
+                        </StyledContainerUpdate>
+                    </Form>
+                </Modal>
+            )}
+        </>
+    );
 };
 
 export default PostsPage;

@@ -1,0 +1,12 @@
+{
+    "greeting": "!Hello!",
+    "createPost": "Create Post",
+    "completeFields": "Please complete all fields.",
+    "postCreated": "Post created successfully!",
+    "errorCreatingPost": "Error creating post",
+    "titlePlaceholder": "Title",
+    "descriptionPlaceholder": "Description",
+    "create": "Create",
+    "updatePost": "Update Post",
+    "update": "Update"
+}
