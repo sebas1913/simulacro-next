@@ -10,7 +10,7 @@ export async function GET() {
 
     const data = await response.json();
     return NextResponse.json(data, { status: 200 });
-  } catch (error) {
+  } catch (error: unknown) {
     return NextResponse.json({ error: 'Error fetching posts', details: error }, { status: 500 });
   }
 }
@@ -37,7 +37,7 @@ export async function POST(request: Request) {
 
     const data = await response.json();
     return NextResponse.json(data, { status: 201 });
-  } catch (error) {
+  } catch (error: unknown) {
     return NextResponse.json({ error: 'Error creating post', details: error }, { status: 500 });
   }
 }

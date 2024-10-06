@@ -73,16 +73,16 @@ const PostsPage: React.FC = () => {
             .then(data => setTexts(data));
     };
 
-    const changeLanguage = (lang: string) => {
+    const changeLanguage = (lang: string): void => {
         Cookies.set('language', lang, { expires: 30 });
         loadLanguage();
     };
 
-    const toggleModalUpdate = () => {
+    const toggleModalUpdate = (): void => {
         setModalUpdateVisible(!modalUpdateVisible);
     };
 
-    const fetchPosts = async () => {
+    const fetchPosts = async (): Promise<void> => {
         setLoading(true);
         try {
             const response = await fetch("/api/posts");
@@ -99,7 +99,7 @@ const PostsPage: React.FC = () => {
         }
     };
 
-    const handleDelete = async (postId: number) => {
+    const handleDelete = async (postId: number): Promise<void> => {
         try {
             const response = await fetch(`/api/posts/${postId}`, {
                 method: 'DELETE',
@@ -115,24 +115,24 @@ const PostsPage: React.FC = () => {
         }
     };
 
-    const handleUpdate = (post: any) => {
+    const handleUpdate = (post: any): void =>{
         setPostToUpdate(post);
         toggleModalUpdate();
     };
 
-    const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>): void =>  {
         if (postToUpdate) {
             setPostToUpdate({ ...postToUpdate, title: e.target.value });
         }
     };
 
-    const handleDescriptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleDescriptionChange = (e: React.ChangeEvent<HTMLInputElement>): void =>  {
         if (postToUpdate) {
             setPostToUpdate({ ...postToUpdate, description: e.target.value });
         }
     };
 
-    const submitUpdate = async (updatedPost: any) => {
+    const submitUpdate = async (updatedPost: any): Promise<void> =>{
         try {
             const response = await fetch(`/api/posts/${updatedPost.id}`, {
                 method: 'PUT',
