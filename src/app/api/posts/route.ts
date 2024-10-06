@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-export async function GET() {
+export async function GET(): Promise<NextResponse>  {
   try {
     const response: Response = await fetch('https://simuate-test-backend-1.onrender.com/api/posts');
     
@@ -15,7 +15,7 @@ export async function GET() {
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(request: Request): Promise<NextResponse>  {
   try {
     const { title, description, user_id } = await request.json();
 
